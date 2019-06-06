@@ -14,11 +14,14 @@ function truncate(buf: Uint8Array, len: number): Uint8Array {
   if (buf.length === len) {
     return buf;
   }
+  
   if (buf.length > len) {
     return buf.slice(0, len);
   }
+  
   const cpy: Uint8Array = new Uint8Array(len);
   cpy.set(buf, 0);
+  
   return cpy;
 }
 
@@ -28,12 +31,15 @@ function concat(bufs: Uint8Array[]): Uint8Array {
     (acc, cur): number => acc + cur.byteLength,
     0
   );
+  
   const buf: Uint8Array = new Uint8Array(total);
   let offset: number = 0;
+  
   for (const b of bufs) {
     buf.set(b, offset);
     offset += b.byteLength;
   }
+  
   return buf;
 }
 
@@ -42,6 +48,7 @@ function equal(a: Uint8Array, b: Uint8Array): boolean {
   if (a.length !== b.length) {
     return false;
   }
+  
   return a.every((x: number, i: number): boolean => x === b[i]);
 }
 
@@ -82,10 +89,12 @@ export interface PagerOptions {
 /** A class representation of a pager. */
 export class Pager {
   readonly pageSize: number;
+  
   maxPages: number = 32768;
   pages: Page[] = new Array(32768);
   length: number = 0;
   level: number = 0;
+  
   private updates: Page[] = [];
   private path: Uint16Array = new Uint16Array(4);
   private deduplicate: Uint8Array;
@@ -104,18 +113,21 @@ export class Pager {
       this.deduplicate &&
       page.buffer[page.deduplicate] === this.deduplicate[page.deduplicate]
     ) {
-      page.deduplicate++;
-      if (page.deduplicate === this.deduplicate.length) {
+      if (++page.deduplicate === this.deduplicate.length) {
         page.deduplicate = 0;
+        
         if (equal(page.buffer, this.deduplicate)) {
           page.buffer = this.deduplicate;
         }
+        
         break;
       }
     }
+    
     if (page.updated || !this.updates) {
       return;
     }
+    
     page.updated = true;
     this.updates.push(page);
   }
@@ -124,6 +136,7 @@ export class Pager {
     if (!this.updates || !this.updates.length) {
       return null;
     }
+    
     const page: Page = this.updates.pop();
     page.updated = false;
     return page;
@@ -135,8 +148,11 @@ export class Pager {
     let page: Page = arr && arr[first];
     if (!page && !noAllocate) {
       page = arr[first] = new Page(i, new Uint8Array(this.pageSize));
-      if (i >= this.length) this.length = i + 1;
+      if (i >= this.length) {
+        this.length = i + 1;
+      }
     }
+    
     if (
       page &&
       page.buffer === this.deduplicate &&
@@ -146,24 +162,30 @@ export class Pager {
       page.buffer = copy(page.buffer);
       page.deduplicate = 0;
     }
+    
     return page;
   }
 
   set(i: number, buf: Uint8Array): void {
     const arr: Page[] = this._array(i, false);
     const first: number = this.path[0];
+    
     if (i >= this.length) {
       this.length = i + 1;
     }
+    
     if (!buf || (this.zeros && equal(buf, this.zeros))) {
       arr[first] = undefined;
       return;
     }
+    
     if (this.deduplicate && equal(buf, this.deduplicate)) {
       buf = this.deduplicate;
     }
+    
     const page: Page = arr[first];
     const b: Uint8Array = truncate(buf, this.pageSize);
+    
     if (page) {
       page.buffer = b;
     } else {
@@ -176,12 +198,15 @@ export class Pager {
     const list: Uint8Array[] = new Array(this.length);
     const empty: Uint8Array = new Uint8Array(this.pageSize);
     let ptr: number = 0;
+    
     while (ptr < list.length) {
       const arr: Page[] = this._array(ptr, true);
+      
       for (let i: number = 0; i < 32768 && ptr < list.length; i++) {
         list[ptr++] = arr && arr[i] ? arr[i].buffer : empty;
       }
     }
+    
     return concat(list);
   }
 
@@ -190,21 +215,28 @@ export class Pager {
       if (noAllocate) {
         return;
       }
+      
       grow(this, i);
     }
+    
     factor(i, this.path);
     let arr: any[] = this.pages;
+    
     for (let j: number = this.level; j > 0; j--) {
       const p: number = this.path[j];
       let next: any = arr[p];
+      
       if (!next) {
         if (noAllocate) {
           return;
         }
+        
         next = arr[p] = new Array(32768);
       }
+      
       arr = next;
     }
+    
     return arr;
   }
 }
