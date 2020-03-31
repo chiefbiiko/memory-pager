@@ -1,8 +1,11 @@
-import { test, runIfMain } from "https://deno.land/std/testing/mod.ts";
-import { assert, assertEquals } from "https://deno.land/std/testing/asserts.ts";
+import {
+  assert,
+  assertEquals
+} from "https://deno.land/std@v0.38.0/testing/asserts.ts";
+
 import { Pager, Page } from "./mod.ts";
 
-test({
+Deno.test({
   name: "get page",
   fn(): void {
     const pages: Pager = new Pager(1024);
@@ -12,7 +15,7 @@ test({
   }
 });
 
-test({
+Deno.test({
   name: "get page twice",
   fn(): void {
     const pages: Pager = new Pager(1024);
@@ -26,7 +29,7 @@ test({
   }
 });
 
-test({
+Deno.test({
   name: "get no mutable page",
   fn(): void {
     const pages: Pager = new Pager(1024);
@@ -36,7 +39,7 @@ test({
   }
 });
 
-test({
+Deno.test({
   name: "get far out page",
   fn(): void {
     const pages: Pager = new Pager(1024);
@@ -52,7 +55,7 @@ test({
   }
 });
 
-test({
+Deno.test({
   name: "updates",
   fn(): void {
     const pages: Pager = new Pager(1024);
@@ -69,5 +72,3 @@ test({
     assertEquals(pages.lastUpdate(), null);
   }
 });
-
-runIfMain(import.meta, { parallel: true });

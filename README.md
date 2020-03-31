@@ -3,12 +3,14 @@
 Access memory using small fixed sized buffers instead of allocating a huge buffer.
 Useful if you are implementing sparse data structures (such as large bitfield).
 
-[![Travis](http://img.shields.io/travis/chiefbiiko/memory-pager.svg?style=flat)](http://travis-ci.org/chiefbiiko/memory-pager) [![AppVeyor](https://ci.appveyor.com/api/projects/status/github/chiefbiiko/memory-pager?branch=master&svg=true)](https://ci.appveyor.com/project/chiefbiiko/memory-pager)
+all credit to the original author [mafintosh](https://github.com/mafintosh)
 
-## Usage
+[![ci](https://github.com/chiefbiiko/memory-pager/workflows/ci/badge.svg?branch=master)](https://github.com/chiefbiiko/memory-pager/actions)
+
+## usage
 
 ``` ts
-import { Pager, Page } from "https://denopkg.com/chiefbiiko/memory-pager/mod.ts"
+import { Pager, Page } from "https://denopkg.com/chiefbiiko/memory-pager@v0.1.0/mod.ts"
 
 const pages: Pager = new Pager(1024); // use 1kb per page
 
@@ -18,7 +20,7 @@ console.log(page.offset) // 10240
 console.log(page.buffer) // a blank 1kb buffer
 ```
 
-## API
+## api
 
 #### `let pages: Pager = new Pager(pageSize: number)`
 
@@ -56,6 +58,6 @@ Get the last page that was updated.
 
 Concat all pages allocated pages into a single buffer
 
-## License
+## license
 
-MIT
+[MIT](./LICENSE)
